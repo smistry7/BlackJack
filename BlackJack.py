@@ -1,8 +1,9 @@
 import pydealer
 import sys
+import time
+import Player
 
 ranks = {
-
     "Ace": 11,
     "King": 10,
     "Queen": 10,
@@ -16,11 +17,12 @@ ranks = {
     "4": 4,
     "3": 3,
     "2": 2
-
 }
 
 
 def main():
+    player_name = input("Please enter your name")
+    player = Player.Player(player_name)
     deck = pydealer.Deck()
     deck.shuffle()
     dealer_hand = deck.deal(2)
@@ -30,13 +32,9 @@ def main():
     print("Dealer Up card: " + str(ranks[dealer_up_card.value]))
     print("Player Hand: " + str(player_hand) + "\nvalue: " +
           str(hand_value(player_hand)))
-    hit_response = input("hit(h) or stick(s)?         blackjack probability="
-                         + str(blackjack_probability(player_hand, dealer_hand))
-                         + "     bust probability =" + str(bust_probability(player_hand, deck)))
+    hit_response = query_player(dealer_hand, deck, player_hand)
     while hit_response != "h" and hit_response != "s":
-        hit_response = input("hit(h) or stick(s)?         blackjack probability="
-                             + str(blackjack_probability(player_hand, dealer_hand))
-                             + "     bust probability =" + str(bust_probability(player_hand, deck)))
+        hit_response = query_player(dealer_hand, deck, player_hand)
     while hit_response == "h":
         player_hand += deck.deal(1)
         print(str(player_hand))
@@ -52,6 +50,7 @@ def main():
             aces -= 1
         if value > 21:
             print("BUST, YOU LOSE")
+            player.update_record(player_name, False)
             sys.exit()
         hit_response = input("hit(h) or stick(s)?       blackjack probability="
                              + str(blackjack_probability(player_hand, dealer_hand))
@@ -62,17 +61,27 @@ def main():
     while no_winner:
         if hand_value(dealer_hand) > hand_value(player_hand):
             print("Dealer Wins!")
+            player.update_record(player_name, False)
             no_winner = False
         elif hand_value(dealer_hand) > hand_value(player_hand) & hand_value(dealer_hand) > 16:
             print("Player Wins!")
+            player.update_record(player_name, True)
             no_winner = False
         else:
             dealer_hand += deck.deal(1)
-            if (hand_value(dealer_hand) > 21):
+            if hand_value(dealer_hand) > 21:
                 print("Player Wins!")
+                player.update_record(player_name, True)
                 no_winner = False
         print("Dealer Hand: " + str(dealer_hand))
         print("value: " + str(hand_value(dealer_hand)))
+        time.sleep(2)
+
+
+def query_player(dealer_hand, deck, player_hand):
+    return input("hit(h) or stick(s)?         blackjack probability="
+                 + str(blackjack_probability(player_hand, dealer_hand))
+                 + "     bust probability =" + str(bust_probability(player_hand, deck)))
 
 
 def hand_value(hand):
