@@ -6,6 +6,7 @@ class Player:
     players = []
 
     def __init__(self, name):
+        name = name.lower()
         with open('players.json') as f:
             self.players = json.load(f)
         player_exists = self.find_player(name)
